@@ -1,0 +1,14 @@
+test
+tsconfig.build.json
+tsconfig.json
+src
+*.tsbuildinfo
+yarn-error.log
+yarn.lock
+.eslintrc
+.eslintignore
+tsconfig.json
+.prettierrc
+CONTRIBUTION.md
+.gitignore
+.editorconfig
