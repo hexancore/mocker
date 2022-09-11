@@ -1,3 +1,5 @@
+<a href="https://buycoffee.to/mararok" target="_blank"><img src="https://buycoffee.to/btn/buycoffeeto-btn-primary.svg" style="width: 150px" alt="Postaw mi kawę na buycoffee.to"></a>
+
 # Mocker
 Two words can describe it: **simple and magical :)**
 Helper stuff to create **mocks** in **TypeScript** based on Jest.Mock.
