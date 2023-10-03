@@ -2,7 +2,7 @@
  * @group unit/core
  */
 
-import { M, mock } from '@/Mocker';
+import { M, mock } from '@/vitest';
 
 interface TestMock {
   a(param1: string, param2: boolean): boolean;
@@ -44,9 +44,11 @@ describe('Mocker', () => {
 
   test('more expections on one method', async () => {
     m.expects('a', 'test', true).andReturn(true);
-    m.expects('a', 'test', true).andReturn(false);
+    m.expects('a', 'test2', true).andReturn(false);
 
     expect(m.i.a('test', true)).toBeTruthy();
-    expect(m.i.a('test', true)).toBeFalsy();
+    expect(m.i.a('test2', true)).toBeFalsy();
+
+    m.checkExpections();
   });
 });

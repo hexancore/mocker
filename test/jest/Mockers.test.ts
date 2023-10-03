@@ -1,5 +1,4 @@
-import { Mocker } from '@';
-import { mocks } from '@/Mockers';
+import { Mocker, mocks } from '@';
 
 class TestMock {
   public method(a: number): number {
@@ -9,14 +8,13 @@ class TestMock {
 
 class TestClassConstructor {
   public constructor(public mock1: TestMock, public readonly b: number, public mock2: TestMock) {}
-
 }
 
 describe('Mockers', () => {
   let m = mocks(
     new (class {
-      mock1: TestMock;
-      mock2: TestMock;
+      public mock1: TestMock;
+      public mock2: TestMock;
     })(),
   );
   let testClass: TestClassConstructor;

@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
+import { MockFn } from './MockFnFactory';
+
 interface MethodCallExpection {
   method: string;
   args?: any[];
 }
 
 export class MethodMock<M extends (...args: any) => any> {
-  public constructor(private readonly mock: jest.Mock) {}
+  public constructor(private readonly mock: MockFn) {}
 
   public andReturnWith(implementation: (...args: Parameters<M>) => ReturnType<M>): void {
     this.mock.mockImplementationOnce(implementation);
@@ -24,12 +26,11 @@ export class MethodMock<M extends (...args: any) => any> {
 export class Mocker<T extends object> {
   private readonly mock: Partial<T>;
   private readonly mockProxy: T;
-  public readonly name: string;
   private methodCallExpections: MethodCallExpection[];
+  public static __MockFnFactory = null;
 
-  public constructor(name: string = `mock`) {
+  public constructor(private readonly name = 'mock') {
     this.mock = {};
-    this.name = name;
     this.methodCallExpections = [];
     this.mockProxy = this.createMockProxy();
   }
@@ -68,10 +69,9 @@ export class Mocker<T extends object> {
   }
 
   public expects<K extends keyof T, A extends ((...args: any) => any) & T[K]>(name: K, ...args: Parameters<A>): MethodMock<A> {
-    let mockFunction: jest.Mock;
+    let mockFunction: MockFn;
     if (!this.mock[name]) {
-      mockFunction = this.mock[<string>name] = jest.fn();
-      mockFunction.mockName(this.name + '.' + <string>name);
+      mockFunction = this.mock[<string>name] = Mocker.__MockFnFactory(this.name + '.' + <string>name);
     } else {
       mockFunction = this.mock[<string>name];
     }

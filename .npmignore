@@ -7,8 +7,9 @@ yarn-error.log
 yarn.lock
 .eslintrc
 .eslintignore
-tsconfig.json
 .prettierrc
 CONTRIBUTION.md
 .gitignore
 .editorconfig
+.yarn
+.yalc

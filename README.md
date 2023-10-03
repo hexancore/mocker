@@ -2,11 +2,23 @@
 
 # Mocker
 Two words can describe it: **simple and magical :)**
-Helper stuff to create **mocks** in **TypeScript** based on Jest.Mock.
+Helper stuff to create **mocks** in **TypeScript** in Jest or Vitest
 
 **You just need it!**
 
 ## Usage:
+
+**In Jest**
+```ts
+import { M, mock } from '@hexancore/mocker';
+```
+
+**In Vitest**
+```ts
+import { M, mock } from '@hexancore/mocker/vitest';
+```
+
+**Example**
 ```ts
 import { M, mock } from '@hexancore/mocker';
 
