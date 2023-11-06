@@ -51,4 +51,12 @@ describe('Mocker', () => {
 
     m.checkExpections();
   });
+
+  test('allowsNotExistingDynamic() ', async () => {
+    m.allowsNotExistingDynamic(['not_exists']);
+
+    m.i["not_exists"];
+
+    m.checkExpections();
+  });
 });
