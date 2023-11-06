@@ -13,3 +13,7 @@ CONTRIBUTION.md
 .editorconfig
 .yarn
 .yalc
+vitest.config.mjs
+jest.config.json
+.prettierrc.js
+.eslintrc.js

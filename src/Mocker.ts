@@ -27,32 +27,39 @@ export class Mocker<T extends object> {
   private readonly mock: Partial<T>;
   private readonly mockProxy: T;
   private methodCallExpections: MethodCallExpection[];
+  private notExistingDynamicSet: Set<string>;
   public static __MockFnFactory = null;
 
   public constructor(private readonly name = 'mock') {
     this.mock = {};
-    this.methodCallExpections = [];
     this.mockProxy = this.createMockProxy();
+
+    this.methodCallExpections = [];
+    this.notExistingDynamicSet = new Set();
   }
 
   private createMockProxy(): T {
-    const mock = this.mock;
-    const mockName = this.name;
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const m = this;
 
-    return new Proxy<T>(mock as T, {
+    return new Proxy<T>(this.mock as T, {
       get: (target: T, prop: string) => {
+        if (m.notExistingDynamicSet.has(prop)) {
+          return undefined;
+        }
+
         if (target[prop]) {
           return target[prop];
-        } else {
-          return (...args: any[]) => {
-            let message = `expect(${mockName}.${prop}).not.toBeCalled`;
-            message += args.length > 0 ? `With(${args.join(', ')})` : '()';
-            const e = new Error(message);
-            const split = e.stack.split('\n');
-            e.stack = [split[0], split[2]].join('\n');
-            throw e;
-          };
         }
+
+        return (...args: any[]) => {
+          let message = `expect(${m.name}.${prop}).not.toBeCalled`;
+          message += args.length > 0 ? `With(${args.join(', ')})` : '()';
+          const e = new Error(message);
+          const split = e.stack.split('\n');
+          e.stack = [split[0], split[2]].join('\n');
+          throw e;
+        };
       },
     });
   }
@@ -68,16 +75,31 @@ export class Mocker<T extends object> {
     return this.mockProxy;
   }
 
-  public expects<K extends keyof T, A extends ((...args: any) => any) & T[K]>(name: K, ...args: Parameters<A>): MethodMock<A> {
-    let mockFunction: MockFn;
-    if (!this.mock[name]) {
-      mockFunction = this.mock[<string>name] = Mocker.__MockFnFactory(this.name + '.' + <string>name);
+  public allowsNotExistingDynamic(names: string | string[]): Mocker<T> {
+    if (Array.isArray(names)) {
+      names.forEach((v) => this.notExistingDynamicSet.add(v));
     } else {
-      mockFunction = this.mock[<string>name];
+      this.notExistingDynamicSet.add(names);
     }
 
+    return this;
+  }
+
+  public expects<K extends keyof T, A extends ((...args: any) => any) & T[K]>(name: K, ...args: Parameters<A>): MethodMock<A> {
+    const mockFunction = this.createMockFn(<string>name);
     this.methodCallExpections.push({ method: <string>name, args });
     return new MethodMock<A>(mockFunction);
+  }
+
+  private createMockFn(name: string): MockFn {
+    let mockFunction: MockFn;
+    if (!this.mock[name]) {
+      mockFunction = this.mock[name] = Mocker.__MockFnFactory(this.name + '.' + name);
+    } else {
+      mockFunction = this.mock[name];
+    }
+
+    return mockFunction;
   }
 
   public checkExpections(): void {
