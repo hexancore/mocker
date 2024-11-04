@@ -1,4 +1,4 @@
-export function getConstructorParams(f) {
+export function getConstructorParams(f: any): string[] {
   const reg = /constructor\((.+)\)/;
   const params = reg.exec(f);
 

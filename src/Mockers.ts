@@ -11,7 +11,7 @@ export type MST<T extends Record<string, any>> = WrapPropsWithMocker<T> & Mocker
  * Manages a group of defined mocks in a more efficient way of writing test code
  */
 export class Mockers<T> {
-  public constructor(mocks) {
+  public constructor(mocks: T) {
     Object.assign(this, mocks);
   }
 
@@ -30,7 +30,7 @@ export class Mockers<T> {
    */
   public xFresh(): MST<T> {
     const obj: any = {};
-    for (let p in this) {
+    for (const p in this) {
       obj[p] = Mocker.of(p);
     }
     return new Mockers(obj) as any;
@@ -51,7 +51,7 @@ export class Mockers<T> {
     const args = [];
     const isNonMockArgsArray = Array.isArray(nonMockArgs);
 
-    for (let p of getConstructorParams(ctr)) {
+    for (const p of getConstructorParams(ctr)) {
       const arg = this[p] ? this[p].i : isNonMockArgsArray ? nonMockArgs.shift() : nonMockArgs[p];
       if (arg === undefined) {
         throw new Error(`Missing value of parameter '${p}', check your test code`);

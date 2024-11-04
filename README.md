@@ -50,10 +50,12 @@ describe('Example test suite', () => {
 
 ### Defining expectation
 
-`Mocker::expects(method, ...args)` returns `MethodMock` object with you can define return value by:
+`Mocker.expects(method, ...args)` returns `MethodMock` object with you can define return value by:
 *  `andReturnWith((implementation: (...args: any) => any)` - you can define your own method implementation
 *  `andReturn(value: any)` - define returns passed value once
+*  `andReturnThis()` - define returns this
 *  `andReturnResolved` - simple sugar function for andReturnWith((() => Promise.resolve(value))
+*  `andReturnRejected` - simple sugar function for andReturnWith((() => Promise.reject(error))
 
 Using `Jest.expect` matchers in `Mocker.expects`
 ```ts
@@ -62,6 +64,10 @@ userRepository
       .expects('save', expect.objectContaining({ email, username, password: hashedPassword }))
       .andReturn(OKA(true));
 ```
+
+### Reset
+
+Mock expectations can be reset with `Mocker.reset()` or with passed `true` to `Mocker.checkExpections(true)`.
 
 ### Mockers
 Manages a group of defined mocks in a more efficient way of writing test code and simplifing injecting many mocks to class object.
