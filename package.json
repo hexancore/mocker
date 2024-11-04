@@ -1,6 +1,6 @@
 {
   "name": "@hexancore/mocker",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "keywords": [
     "mock",
     "typescript",
@@ -20,9 +20,7 @@
   "engine-strict": true,
   "description": "Simple and magical mocks for TypeScript, works with jest and vitest",
   "author": {
-    "name": "Andrzej Wasiak",
-    "email": "contact@andrzejwasiak.pl",
-    "url": "https://andrzejwasiak.pl"
+    "name": "Andrzej Wasiak"
   },
   "license": "MIT",
   "main": "lib/index.js",

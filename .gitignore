@@ -1,11 +1,20 @@
+# YARN
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 node_modules
-lib
-coverage
-*.tsbuildinfo
-/**/test/coverage
-.yarn
-*.log
+
+# YALC
 .yalc
 yalc.lock
-/**/yarn.lock
-yarn.lock
+
+# build/test artifacts
+lib
+*.tsbuildinfo
+/**/test/coverage
+coverage
+*.log

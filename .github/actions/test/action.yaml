@@ -1,0 +1,10 @@
+name: Test
+description: 'execute tests'
+runs:
+  using: 'composite'
+  steps:
+    # Yarn test
+    - name: Test
+      shell: bash
+      run: yarn test
+
