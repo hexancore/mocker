@@ -8,7 +8,7 @@ interface MethodCallExpection {
 }
 
 export class MethodMock<M extends (...args: any) => any> {
-  public constructor(private readonly mock: MockFn) {}
+  public constructor(private readonly mock: MockFn) { }
 
   public andReturnWith(implementation: (...args: Parameters<M>) => ReturnType<M>): void {
     this.mock.mockImplementationOnce(implementation);
@@ -18,15 +18,32 @@ export class MethodMock<M extends (...args: any) => any> {
     this.mock.mockReturnValueOnce(value);
   }
 
-  public andReturnResolved(value: ReturnType<M>): void {
+  public andReturnThis(): void {
+    this.mock.mockReturnThis();
+  }
+
+  public andReturnResolved(value: ReturnType<M> extends Promise<infer U> ? U : never): void {
     this.mock.mockResolvedValueOnce(value);
+  }
+
+  public andReturnRejected<E extends Error>(error: ReturnType<M> extends Promise<any> ? E : never): void {
+    this.mock.mockRejectedValueOnce(error);
   }
 }
 
+export type MethodMockInterface<T extends object, M extends (...args: any) => any> = ReturnType<M> extends Promise<any>
+  ? ReturnType<M> extends T ? MethodMock<M> : Omit<MethodMock<M>, 'andReturnThis'>
+  : Omit<MethodMock<M>,
+    ReturnType<M> extends T
+    ? 'andReturnResolved' | 'andReturnRejected'
+    : 'andReturnResolved' | 'andReturnRejected' | 'andReturnThis'
+  >;
+
 export class Mocker<T extends object> {
-  private readonly mock: Partial<T>;
+  private readonly mock: Partial<Record<keyof T, MockFn>>;
   private readonly mockProxy: T;
   private methodCallExpections: MethodCallExpection[];
+  private checkedExpections: boolean;
   private notExistingDynamicSet: Set<string>;
   public static __MockFnFactory = null;
 
@@ -36,6 +53,7 @@ export class Mocker<T extends object> {
 
     this.methodCallExpections = [];
     this.notExistingDynamicSet = new Set();
+    this.checkedExpections = false;
   }
 
   private createMockProxy(): T {
@@ -85,10 +103,10 @@ export class Mocker<T extends object> {
     return this;
   }
 
-  public expects<K extends keyof T, A extends ((...args: any) => any) & T[K]>(name: K, ...args: Parameters<A>): MethodMock<A> {
+  public expects<K extends keyof T, M extends ((...args: any) => any) & T[K]>(name: K, ...args: Parameters<M>): MethodMockInterface<T, M> {
     const mockFunction = this.createMockFn(<string>name);
     this.methodCallExpections.push({ method: <string>name, args });
-    return new MethodMock<A>(mockFunction);
+    return new MethodMock<M>(mockFunction);
   }
 
   private createMockFn(name: string): MockFn {
@@ -102,10 +120,27 @@ export class Mocker<T extends object> {
     return mockFunction;
   }
 
-  public checkExpections(): void {
+  public reset(): void {
+    this.methodCallExpections = [];
+    for (const m in this.mock) {
+      this.mock[m].mockReset();
+    }
+    this.checkedExpections = false;
+  }
+
+  public checkExpections(reset = false): void {
+    if (this.checkedExpections) {
+      throw new Error(`Mock[${this.name}]: checking same expections second time(fix code or reset mock)`);
+    }
+
     this.methodCallExpections.forEach((expection: MethodCallExpection) => {
       this.checkExpection(expection);
     });
+    this.checkedExpections = true;
+
+    if (reset) {
+      this.reset();
+    }
   }
 
   private checkExpection(expection: MethodCallExpection): void {
